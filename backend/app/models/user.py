@@ -30,3 +30,10 @@ class User(Base):
         DateTime(timezone=True),
         onupdate=func.now()
     )
+
+    def __repr__(self):
+        return (
+            f"User(id={self.id}, "
+            f"email='{self.email}', "
+            f"username='{self.username}')"
+        )
