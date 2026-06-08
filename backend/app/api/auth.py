@@ -1,15 +1,27 @@
+"""
+Authentication Routes
+
+Contains:
+- Register User
+- Login User
+- Get Current User
+"""
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
+
+from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
 
 from app.db.dependencies import get_db
 
+from app.models.user import User
+
 from app.schemas.user import (
     UserCreate,
     UserResponse,
-    UserLogin,
     Token
 )
 
@@ -20,29 +32,32 @@ from app.services.auth_service import (
     authenticate_user
 )
 
-from app.schemas.user import (
-    UserCreate,
-    UserResponse
+from app.api.dependencies import (
+    get_current_user
 )
 
-from app.services.auth_service import(
-    create_user
-)
-
-router =APIRouter(
+router = APIRouter(
     prefix="/api/auth",
     tags=["Authentication"]
 )
+
+
+# ==========================================
+# REGISTER
+# ==========================================
 
 @router.post(
     "/register",
     response_model=UserResponse
 )
-
 def register(
     user: UserCreate,
     db: Session = Depends(get_db)
 ):
+    """
+    Create new user account.
+    """
+
     created_user = create_user(
         db,
         user
@@ -50,28 +65,40 @@ def register(
 
     if not created_user:
         raise HTTPException(
-            status_code = 400,
-            detail = "User already exists"
+            status_code=400,
+            detail="User already exists"
         )
-    
+
     return created_user
+
+
+# ==========================================
+# LOGIN
+# ==========================================
 
 @router.post(
     "/login",
     response_model=Token
 )
 def login(
-    user: UserLogin,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
     """
-    Authenticate user and return JWT token.
+    Login user.
+
+    OAuth2 standard expects:
+
+    username = email
+    password = password
+
+    Returns JWT token.
     """
 
     authenticated_user = authenticate_user(
         db,
-        user.email,
-        user.password
+        form_data.username,
+        form_data.password
     )
 
     if not authenticated_user:
@@ -90,3 +117,25 @@ def login(
         "access_token": access_token,
         "token_type": "bearer"
     }
+
+
+# ==========================================
+# CURRENT USER
+# ==========================================
+
+@router.get(
+    "/me",
+    response_model=UserResponse
+)
+def get_me(
+    current_user: User = Depends(
+        get_current_user
+    )
+):
+    """
+    Return currently logged-in user.
+
+    Requires valid JWT token.
+    """
+
+    return current_user
