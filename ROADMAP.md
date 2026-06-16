@@ -10,10 +10,17 @@
 - [x] Password Hashing
 
 ## Phase 2 - Authentication
+- [x] Register User
+- [x] Hash Password (bcrypt)
+- [x] Login User
+- [x] Generate JWT
+- [x] User Login
+- [x] JWT Authentication
+- [x] Protected Routes
+- [x] Learning Progress Model
+- [x] Progress Service
+- [x] Auto Progress Creation
 
-- [ ] User Login
-- [ ] JWT Authentication
-- [ ] Protected Routes
 
 ## Phase 3 - AI Chat
 

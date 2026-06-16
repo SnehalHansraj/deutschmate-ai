@@ -6,38 +6,61 @@ from app.core.security import (
     hash_password,
     verify_password
 )
+from app.services.progress_service import (
+    create_learning_progress
+)
 
 def create_user(
-        db: Session,
-        user: UserCreate
+    db: Session,
+    user: UserCreate
 ):
     existing_user = (
         db.query(User)
         .filter(
-            (User.email ==user.email)
-            | (User.username ==user.username)
+            (User.email == user.email)
+            | (User.username == user.username)
         )
         .first()
     )
+
     if existing_user:
         return None
-    
-    # Create user object
-    new_user =User(
-        email=user.email,
-        username=user.username,
-        hashed_password=hash_password(
-            user.password
+
+    try:
+
+        # Create User
+
+        new_user = User(
+            email=user.email,
+            username=user.username,
+            hashed_password=hash_password(
+                user.password
+            )
         )
-    )
 
-    # Save to database
+        db.add(new_user)
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+        # User ID generate karne ke liye
+        db.flush()
 
-    return new_user
+        # Create Learning Progress
+
+        create_learning_progress(
+            db=db,
+            user_id=new_user.id
+        )
+
+        db.commit()
+
+        db.refresh(new_user)
+
+        return new_user
+
+    except Exception:
+
+        db.rollback()
+
+        raise
 
 
 def authenticate_user(
