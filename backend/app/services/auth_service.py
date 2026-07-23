@@ -76,9 +76,19 @@ def authenticate_user(
         .filter(User.email == email)
         .first()
     )
+    print("USER FOUND:", user)
+    print("INPUT PASSWORD:", password)
 
     if not user:
         return None
+    
+    print(
+        "PASSWORD MATCH:",
+        verify_password(
+            password,
+            user.hashed_password
+        )
+    )
     
     if not verify_password(
         password,

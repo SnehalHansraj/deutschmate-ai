@@ -8,12 +8,17 @@ from app.api.progress import (
     router as progress_router
 )
 
+from app.api.vocabulary import(
+    router as vocabulary_router
+)
+
 app = FastAPI(
     title="DeutschMate API",
 )
 
 app.include_router(auth_router)
 app.include_router(progress_router)
+app.include_router(vocabulary_router)
 
 
 @app.get("/")

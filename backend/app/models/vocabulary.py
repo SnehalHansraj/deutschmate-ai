@@ -4,6 +4,7 @@ from sqlalchemy import String
 from sqlalchemy import Boolean
 from sqlalchemy import ForeignKey
 from sqlalchemy import DateTime
+
 from sqlalchemy.sql import func
 
 from app.db.base import Base
